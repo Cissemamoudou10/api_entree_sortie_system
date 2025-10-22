@@ -11,9 +11,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Routes
-// app.use('/api/employees', employeeRoutes);
-// app.use('/api/attendance', attendanceRoutes);
-// app.use('/api/admin', adminRoutes);
+app.use('/api/employees', employeeRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/admin', adminRoutes);
 
 module.exports = app;

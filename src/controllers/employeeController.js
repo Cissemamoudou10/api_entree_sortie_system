@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Employee = require('../models/employeeModel');
 
 exports.getAllEmployees = (req, res) => {
@@ -17,9 +18,21 @@ exports.getEmployeeById = (req, res) => {
 
 exports.createEmployee = (req, res) => {
   const data = req.body;
-  Employee.create(data, (err, result) => {
+
+  // ✅ Génération automatique du QR code unique
+  const qrData = `${data.nom}_${data.prenom}_${Date.now()}`;
+  const qr_code = crypto.createHash('sha256').update(qrData).digest('hex');
+
+  // Ajout du qr_code dans les données
+  const employeeData = { ...data, qr_code };
+
+  Employee.create(employeeData, (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ message: 'Employé ajouté avec succès', id: result.insertId });
+    res.status(201).json({
+      message: 'Employé ajouté avec succès',
+      id: result.insertId,
+      qr_code
+    });
   });
 };
 
