@@ -1,0 +1,80 @@
+# Dépendances
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Variables d'environnement (TRÈS IMPORTANT !)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Fichiers uploadés
+uploads/
+badges/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Logs
+logs/
+*.log
+
+# Base de données locale
+*.sqlite
+*.sqlite3
+*.db
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Build et distribution
+dist/
+build/
+out/
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+
+# Coverage (si tu utilises des tests)
+coverage/
+.nyc_output/
+
+# Fichiers de cache
+.cache/
+.parcel-cache/
+
+# PM2 (si tu utilises PM2)
+.pm2/
+ecosystem.config.js
+
+# Certificats SSL (si tu en utilises)
+*.pem
+*.key
+*.cert
+*.crt
+
+# Sauvegardes
+*.backup
+*.bak
+*.old
