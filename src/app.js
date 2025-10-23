@@ -4,7 +4,9 @@ const bodyParser = require('body-parser');
 
 const employeeRoutes = require('./routes/employeeRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+const userRoutes = require('./routes/userRoutes');
+
+
 
 const app = express();
 
@@ -13,6 +15,6 @@ app.use(bodyParser.json());
 
 app.use('/api/employees', employeeRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 
 module.exports = app;
