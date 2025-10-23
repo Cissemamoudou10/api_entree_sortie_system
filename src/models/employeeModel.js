@@ -9,6 +9,11 @@ const Employee = {
     db.query('SELECT * FROM employees WHERE id = ?', [id], callback);
   },
 
+  // ✅ Récupérer tous les employés créés par un utilisateur spécifique
+  getByCreator: (userId, callback) => {
+    db.query('SELECT * FROM employees WHERE created_by = ?', [userId], callback);
+  },
+
   create: (data, callback) => {
     db.query('INSERT INTO employees SET ?', data, callback);
   },
