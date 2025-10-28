@@ -15,6 +15,14 @@ router.get(
   requireRole("admin"),
   employeeController.getEmployeesByCreator
 );
+
+router.get(
+  "/company/:companyId",
+  verifyToken,
+  requireRole("admin"),
+  employeeController.getEmployeesByCompany
+);
+
 router.get(
   "/:id",
   verifyToken,

@@ -1,7 +1,8 @@
+// controllers/employeeController.js
 const crypto = require('crypto');
 const Employee = require('../models/employeeModel');
 
-// ✅ Récupère tous les employés
+// 🔹 Récupère tous les employés
 exports.getAllEmployees = (req, res) => {
   Employee.getAll((err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -9,40 +10,18 @@ exports.getAllEmployees = (req, res) => {
   });
 };
 
-// ✅ Récupère un employé par son ID
+// 🔹 Récupère un employé par ID
 exports.getEmployeeById = (req, res) => {
-  Employee.getById(req.params.id, (err, results) => {
+  const { id } = req.params;
+
+  Employee.getById(id, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ message: 'Employé non trouvé' });
+    if (!results.length) return res.status(404).json({ message: 'Employé non trouvé' });
     res.json(results[0]);
   });
 };
 
-// ✅ Crée un employé avec un champ created_by = id du user connecté
-exports.createEmployee = (req, res) => {
-  const data = req.body;
-
-  const qrData = `${data.nom}_${data.prenom}_${Date.now()}`;
-  const qr_code = crypto.createHash('sha256').update(qrData).digest('hex');
-
-  // 🔗 On ajoute created_by depuis le token
-  const employeeData = { 
-    ...data, 
-    qr_code, 
-    created_by: req.user.id 
-  };
-
-  Employee.create(employeeData, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({
-      message: 'Employé ajouté avec succès',
-      id: result.insertId,
-      qr_code
-    });
-  });
-};
-
-// ✅ Récupère les employés créés par un utilisateur (basé sur son token)
+// 🔹 Récupère les employés créés par l’utilisateur connecté
 exports.getEmployeesByCreator = (req, res) => {
   const userId = req.user.id;
   Employee.getByCreator(userId, (err, results) => {
@@ -51,18 +30,64 @@ exports.getEmployeesByCreator = (req, res) => {
   });
 };
 
-// ✅ Mise à jour d'un employé
+// 🔹 Récupère les employés d’une entreprise
+exports.getEmployeesByCompany = (req, res) => {
+  const { companyId } = req.params;
+  Employee.getByCompany(companyId, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+// 🔹 Crée un nouvel employé
+exports.createEmployee = (req, res) => {
+  const { nom, prenom, email, poste, company_id, statut_actuel } = req.body;
+
+  if (!nom || !prenom || !company_id) {
+    return res.status(400).json({ message: 'Champs requis manquants' });
+  }
+
+  const qrData = `${nom}_${prenom}_${Date.now()}`;
+  const qr_code = crypto.createHash('sha256').update(qrData).digest('hex');
+
+  const employeeData = {
+    nom,
+    prenom,
+    email,
+    poste,
+    qr_code,
+    statut_actuel: statut_actuel || 'absent',
+    created_by: req.user.id,
+    company_id
+  };
+
+  Employee.create(employeeData, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    res.status(201).json({
+      message: 'Employé ajouté avec succès',
+      id: result.insertId,
+      qr_code
+    });
+  });
+};
+
+// 🔹 Mise à jour d’un employé
 exports.updateEmployee = (req, res) => {
+  const { id } = req.params;
   const data = req.body;
-  Employee.update(req.params.id, data, (err) => {
+
+  Employee.update(id, data, (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Employé mis à jour avec succès' });
   });
 };
 
-// ✅ Suppression d'un employé
+// 🔹 Suppression d’un employé
 exports.deleteEmployee = (req, res) => {
-  Employee.delete(req.params.id, (err) => {
+  const { id } = req.params;
+
+  Employee.delete(id, (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Employé supprimé avec succès' });
   });

@@ -18,10 +18,13 @@ exports.verifyToken = (req, res, next) => {
 
 // ✅ Vérifie les rôles
 
-exports.requireRole = (role) => {
+/**
+ * ✅ Middleware d'autorisation basé sur les rôles
+ * @param {string|string[]} roles - Un rôle ou un tableau de rôles autorisés
+ */
+exports.requireRole = (roles) => {
   return (req, res, next) => {
     const authHeader = req.headers.authorization;
-
     if (!authHeader) {
       return res.status(401).json({ message: "Token manquant" });
     }
@@ -29,28 +32,49 @@ exports.requireRole = (role) => {
     const token = authHeader.split(" ")[1];
 
     try {
-      // 🔐 Vérifie et décode le token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // 🧩 On stocke les infos de l'utilisateur dans la requête
       req.user = decoded;
 
-      // 🛡️ Si c'est un admin, il peut tout faire
-      if (decoded.role === "admin") {
+      // Si roles est une chaîne (ex: "admin"), on le convertit en tableau
+      const allowedRoles = Array.isArray(roles) ? roles : [roles];
+
+      // 🛡️ Si c’est un superadmin, il peut tout faire
+      if (decoded.role === "superadmin") {
         return next();
       }
 
-      // 🎯 Sinon, on vérifie que son rôle correspond à celui exigé
-      if (decoded.role !== role) {
-        return res
-          .status(403)
-          .json({ message: "Accès refusé : rôle non autorisé" });
+      // 🔎 Vérifie si l'utilisateur a un rôle autorisé
+      if (!allowedRoles.includes(decoded.role)) {
+        return res.status(403).json({
+          message: "Accès refusé : rôle non autorisé",
+        });
       }
 
-      // ✅ Tout est OK
       next();
     } catch (err) {
       return res.status(403).json({ message: "Token invalide ou expiré" });
     }
   };
+};
+
+exports.requireSuperAdmin = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Token manquant' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+
+    if (decoded.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Accès refusé : superadmin requis' });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Token invalide ou expiré' });
+  }
 };
